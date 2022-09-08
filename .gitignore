@@ -25,3 +25,4 @@ cscope.in.out
 cscope.po.out
 tags
 diff
+*.swp
