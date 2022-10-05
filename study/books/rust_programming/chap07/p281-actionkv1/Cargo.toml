@@ -1,0 +1,26 @@
+[package]
+name = "p281-actionkv1"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+byteorder = "1.2"
+crc = "1.7"
+serde_derive = "1"
+serde = "1"
+bincode = "1"
+
+[lib]
+name = "libactionkv"
+path = "src/lib.rs"
+
+[[bin]]
+name = "akv_mem"
+path = "src/akv_mem.rs"
+
+[[bin]]
+name = "akv_disk"
+path = "src/akv_disk.rs"
