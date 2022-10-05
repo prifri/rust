@@ -92,6 +92,13 @@ impl Particle {
         }
     }
 
+/*
+ * PRIFRI, 2022.10.05:
+ * - 속도가 가속도만큼 증가산다.
+ * - 속도만큼 위치가 상승한다.
+ * - 가속도는 0.7배만큼 감소한다.
+ * - 점점 투명해진다.
+ */
     fn update(&mut self) {
         self.velocity = add(self.velocity,
                             self.acceleration);
@@ -168,6 +175,7 @@ impl World {
  * prifri, 2022.10.05:
  * - vsync 에러땜에 test. vsync(true)넣으면 안나온다.
  */
+#[allow(dead_code)]
 fn test() {
     let mut window: PistonWindow =
         WindowSettings::new("Hello Piston!", [640, 480])
