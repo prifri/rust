@@ -22,6 +22,17 @@ Usage:
 type ByteStr = [u8];
 type ByteString = Vec<u8>;
 
+/*
+ * PRIFRI, 2022.10.06:
+ * - hashmap을 serialize하여 +index 를 key로한 value를 넣는다.
+ *   마치 hashmap의 기존 key, pos구조의, pos위치 value값들이 있는
+ *   상태에서, 해당 data들의 한줄을 색인으로 쓴다.
+ *   즉 "색인"이라는 key를 가진 value를 추가한건데, 그 value들이 직렬화되
+ *   있을뿐..
+ *
+ * - 색인은 원래 header근처에 있어서 먼저 빨리 읽어야되는데 그냥 현재구조에
+ *   맞출려고 이렇게 한거같다.
+ */
 fn store_index_on_disk(a: &mut ActionKV, index_key: &ByteStr) {
     a.index.remove(index_key);
     let index_as_bytes = bincode::serialize(&a.index).unwrap();
@@ -61,6 +72,14 @@ fn main() {
                 .unwrap()
                 .unwrap();
 
+/*
+ * PRIFRI, 2022.10.06:
+ * - deserialize를 해서 즉시 hashmap에 넣어버리면 lib에서 for문 돌 필요없이
+ *   만들어진다.
+ * - 사실 단일 데이터라면 hashmap을 통으로 만들필요없이 한개짜리를
+ *   조회를 하는게 훨씬 효율적인데 serialize <-> deserialize을 쓴다면
+ *   단점이 되는 요소긴하다.
+ */
             let index_decoded = bincode::deserialize(&index_as_bytes);
             let index: HashMap<ByteString, u64> = index_decoded.unwrap();
 
@@ -73,7 +92,10 @@ fn main() {
             }
         },
 
-        "delete" => a.delete(key).unwrap(),
+        "delete" => {
+            a.delete(key).unwrap();
+            store_index_on_disk(&mut a, INDEX_KEY);
+        }
 
         "insert" => {
             let value = maybe_value.expect(&USAGE).as_ref();
