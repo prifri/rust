@@ -74,7 +74,7 @@ impl NTPResult {
 /*
  * PRIFRI, 2022.10.07:
  * - chrono는 10^(-9), ntp는 250 * 10^(-12)의 정밀도를 가진다.
- * 그 정밀도에 대하여 연산해준다.
+ *   그 정밀도에 대하여 연산해준다.
  */
 impl From<NTPTimestamp> for DateTime<Utc> {
     fn from(ntp: NTPTimestamp) -> Self {
