@@ -83,3 +83,8 @@ rust가 아닌 system의 중점으로 보고, 거기에 rust를 곁들인다는 
 ## 물음표 연산자
 
 [링크](https://rinthel.github.io/rust-lang-book-ko/ch09-02-recoverable-errors-with-result.html)
+
+## std::sync::atomic::spin_loop_hint()
+
+[링크](https://doc.rust-lang.org/std/sync/atomic/fn.spin_loop_hint.html)
+[hint::spin_loop()](https://doc.rust-lang.org/std/hint/fn.spin_loop.html)
