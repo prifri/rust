@@ -17,7 +17,7 @@ use clap::{App, Arg};
 fn test() {
 
 /*
- * IAMROOT, 2022.09.21:
+ * prifri, 2022.09.21:
  * - unwrap()은 result값을 풀어내는데 오류가 발생하면 강제 종료한다.
  */
     let re = Regex::new("picture").unwrap();
@@ -109,7 +109,7 @@ fn test3() {
         let line = line_.unwrap();
 
 /*
- * IAMROOT, 2022.09.21:
+ * prifri, 2022.09.21:
  * -line은 String type. re.find()는 &str을 인자로 받는다고한다. 
  */
         match re.find(&line) {

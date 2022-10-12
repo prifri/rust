@@ -1,7 +1,7 @@
 fn main() {
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - \ : 뒤에오는 줄바꿈을 피한다.
  */
     let pengun_data = "\
@@ -15,7 +15,7 @@ fn main() {
 
     for (i, record) in records.enumerate() {
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - i == 0 : coomon name, length skip
  * - record.trim().len() 공백이 있는거 스킵. 여기선 i == 0 만 스킵될것.
  */
@@ -28,7 +28,7 @@ fn main() {
         }
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - record를 field로 나눈다.
  */
         let fields: Vec<_> = record

@@ -1,7 +1,7 @@
 use std::thread;
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - rust는 여러 thread가 한 데이터를 접근하는것을 허용 안한다.
  */
 fn main() {

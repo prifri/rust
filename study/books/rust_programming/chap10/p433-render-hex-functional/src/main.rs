@@ -105,7 +105,7 @@ impl Artist {
     }
 
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - 그림이 경계안에 있는걸 확인.
  */
     fn wrap(&mut self) {
@@ -129,7 +129,7 @@ impl Artist {
 
 fn parse(input: &str) -> Vec<Operation> {
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - map
  *   반복자 모든 요소에 함수를 적용.
  * - collect
@@ -151,7 +151,7 @@ fn parse(input: &str) -> Vec<Operation> {
 }
 
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - Operation -> Command 변환.
  */
 fn convert(operations: &Vec<Operation>) -> Vec<Command> {
@@ -166,7 +166,7 @@ fn convert(operations: &Vec<Operation>) -> Vec<Command> {
     for op in operations {
 
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - op로 command 를 만들고, x, y값을 line(그리는데 사용)을 생성한다음
  *   path에 만든 line을 먼들어놓는다.
  */
@@ -186,7 +186,7 @@ fn convert(operations: &Vec<Operation>) -> Vec<Command> {
         path_data.push(path_segment);
 
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - 경계를 넘은지 확인. 중앙 복귀.
  */
         turtle.wrap();
@@ -234,7 +234,7 @@ fn main() {
     let save_to = args.get(2).unwrap_or(&default_filename);
 
 /*
- * IAMROOT, 2022.10.09:
+ * prifri, 2022.10.09:
  * - svg 생성 파이프라인
  */
     let operations = parse(input);

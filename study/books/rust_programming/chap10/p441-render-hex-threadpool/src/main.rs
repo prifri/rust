@@ -1,11 +1,11 @@
+use std::thread;
 use std::env;
 
 use svg::Document;
 use svg::node::element::{Path, Rectangle};
 use svg::node::element::path::{Command, Position, Data};
 
-use rayon::prelude::*;
-
+use crossbeam::channel::unbounded;
 
 /*
  * prifri, 2022.10.09:
@@ -129,36 +129,85 @@ impl Artist {
     }
 }
 
+/*
+ * prifri, 2022.10.11:
+ * - 채널을 통해 보낼 메시지 타입. usize는 current pos.
+ */
+enum Work {
+    Task((usize, u8)),
+    Finished,
+}
+
+fn parse_byte(byte: u8) -> Operation {
+    match byte {
+        b'0' => Home,
+        b'1'..=b'9' => {
+            let distance = (byte - 0x30) as isize;
+            Forward(distance * (HEIGHT / 10))
+        },
+        b'a' | b'b' | b'c' => TurnLeft,
+        b'd' | b'e' | b'f' => TurnRight,
+        _ => Noop(byte),
+    }
+}
+
 fn parse(input: &str) -> Vec<Operation> {
+    let n_threads = 2;
+    let (todo_tx, todo_rx) = unbounded();
+    let (results_tx, results_rx) = unbounded();
+    let mut n_bytes = 0;
 
 /*
- * prifri, 2022.10.10:
- * - as_bytes()
- *   input(입력 문자열 슬라이스)를 바이트 슬라이스로 변환한다.
- * - par_iter()
- *   바이트 슬라이스를 병렬 반복자로 변환한다. 경쟁 조건이 생기지 않도록
- *   보장한다.
+ * prifri, 2022.10.11:
+ * - 데이터를 미리 다 보내놓는다.
  */
-    input
-        .as_bytes()
-        .par_iter()
-        .map(|byte|{
-        match byte {
-            b'0'  => Home,
-            b'1'..=b'9' => {
-                let distance = (byte - 0x30) as isize;
-                Forward(distance * (HEIGHT / 10))
-            },
-            b'a' | b'b' | b'c' => TurnLeft,
-            b'd' | b'e' | b'f' => TurnRight,
+    for (i, byte) in input.bytes().enumerate() {
+        todo_tx.send(Work::Task((i, byte))).unwrap();
+        n_bytes += 1;
+    }
 
-            /*
-            * prifri, 2022.10.10:
-            * - byte 변수는 &u8타입으로, Operation::Noop(u8)에 맞출려면
-            *   값을 역참조해야한다.,
-            */
-            _ => Noop(*byte),
-        }}).collect()
+/*
+ * prifri, 2022.10.11:
+ * - 완료까지 보내놓는다.
+ */
+    for _ in 0..n_threads {
+        todo_tx.send(Work::Finished).unwrap();
+    }
+
+    for _ in 0..n_threads {
+/*
+ * prifri, 2022.10.11:
+ * - 복제된다. thread간에 동기화는 채널에서 자동으로 이뤄지게 될것이다.
+ */
+        let todo = todo_rx.clone();
+        let results = results_tx.clone();
+        thread::spawn(move || {
+            loop {
+                let task = todo.recv();
+                let result = match task {
+                    Err(_) => break,
+                    Ok(Work::Finished) => break,
+                    Ok(Work::Task((i, byte))) => (i, parse_byte(byte)),
+                };
+                results.send(result).unwrap();
+            }
+        });
+    }
+    let mut ops = vec![Noop(0); n_bytes];
+
+/*
+ * prifri, 2022.10.11:
+ * - 결과는 임의의 순서를 반환할수있으므로 이전에 보냇던 index에 완성된
+ *   op를 넣는 식으로 진행한다.
+ * - 배열을 사용안하는 이유는 타입시그니처 때문이라고 하며, 추후에 변경될때
+ *   리팩토링을 하기 싫다는 이유라고 하며, 실제로 이런이유로 아주 특별하게
+ *   최적화가 필요하지 않으면 배열대신 vector를 그냥 사용한다.
+ */
+    for _ in 0..n_bytes {
+        let (i, op) = results_rx.recv().unwrap();
+        ops[i] = op;
+    }
+    ops
 }
 
 /*

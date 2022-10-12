@@ -35,7 +35,7 @@ fn main() {
         tags.push(i);
 
 /*
- * IAMROOT, 2022.09.09:
+ * prifri, 2022.09.09:
  * - vec size를 에약하여 생성하고 ctx에 넣어놓는다.
  */
         let v = Vec::with_capacity(2 * context_lines + 1);

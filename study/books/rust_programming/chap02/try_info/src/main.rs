@@ -6,7 +6,7 @@ fn main() {
 
 
 /*
- * IAMROOT, 2022.08.29:
+ * prifri, 2022.08.29:
  * - try_into : i32로 변환
  * - unwrap : 성공값 처리. i32로 실제 반환하는 역할.
  */

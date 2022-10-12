@@ -80,6 +80,8 @@ rust가 아닌 system의 중점으로 보고, 거기에 rust를 곁들인다는 
 
 # 기타
 
+[공식](https://livebook.manning.com/book/rust-in-action/rust-in-action/4)
+
 ## 물음표 연산자
 
 [링크](https://rinthel.github.io/rust-lang-book-ko/ch09-02-recoverable-errors-with-result.html)

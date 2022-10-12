@@ -43,7 +43,7 @@ fn store_index_on_disk(a: &mut ActionKV, index_key: &ByteStr) {
 fn main() {
 
 /*
- * IAMROOT, 2022.10.06:
+ * prifri, 2022.10.06:
  * - INDEX_KEY
  *   database 내 인덱스의 숨겨진 내부 명칭
  */

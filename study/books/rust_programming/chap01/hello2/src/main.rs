@@ -7,7 +7,7 @@ fn greet_world() {
     let southern_germany = "مرحبا بالعالم!";
     let korean = "하나둘셋";
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - [] : 배열 리터럴.
  */
     let regions = [southern_germany, korean]; //배열 리터널
@@ -15,7 +15,7 @@ fn greet_world() {
     for region in regions.iter() {
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - &region : read only borrow
  */
         println!("{}", &region);

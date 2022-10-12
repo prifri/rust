@@ -7,7 +7,7 @@ fn main() {
     println!("{} + {} + {} = {}", twenty, twenty_one, twenty_tw, addition);
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - 가독성 높임.
  */
     let one_million: i64 = 1_000_000;

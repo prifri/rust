@@ -4,7 +4,7 @@ fn main() {
     let three_hudred = 0x12C;
 
 /*
- * IAMROOT, 2022.08.28:
+ * prifri, 2022.08.28:
  * - binary, octal, hexadecimal
  */
     println!("base 10: {} {} {}", three, thiry, three_hudred);

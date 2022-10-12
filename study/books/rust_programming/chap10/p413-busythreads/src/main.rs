@@ -22,7 +22,7 @@ fn test1(mut handlers: Vec<thread::JoinHandle<()>>)
 
 
 /*
- * IAMROOT, 2022.10.08:
+ * prifri, 2022.10.08:
  * - 불가능한 방법. 참조로 가져오면 for문에선 readonly만 된다.
  */
 /*
@@ -39,7 +39,7 @@ fn test2(mut handlers: Vec<thread::JoinHandle<()>>)
 
 
 /*
- * IAMROOT, 2022.10.08:
+ * prifri, 2022.10.08:
  * - 유효한 방법. writeable이 가능하다.
  */
 fn test3(mut handlers: Vec<thread::JoinHandle<()>>)
@@ -65,7 +65,7 @@ fn main() {
                 while start.elapsed() < pause {
 
 /*
- * IAMROOT, 2022.10.08:
+ * prifri, 2022.10.08:
  * - 잠깐 쉰다. 잠깐의 개념이 현재 thread에 주어진 timeslice를 포기한다는
  * 것이다. 이런 방식을 busy wait strategy라고 부른다고 하며,
  * 반복적인 polling이나 event가 발생했을때 쓸수있다고 한다.
