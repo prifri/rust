@@ -6,12 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bootloader = "0.9"
-x86_64 = "0.13"
+bootloader = "0.7.0"
 
 [package.metadata.bootimage]
+# The cargo subcommand that will be used for building the kernel.
+#
+# For building using the `cargo-xbuild` crate, set this to `xbuild`.
 build-command = ["build"]
-
-run-command = [
-  "qemu-system-x86_64", "-drive", "format-raw,file={}"
-]
+# The command invoked with the created bootimage (the "{}" will be replaced
+# with the path to the bootable disk image)
+# Applies to `bootimage run` and `bootimage runner`
+run-command = ["qemu-system-x86_64", "-drive", "format=raw,file={}"]
