@@ -1,0 +1,48 @@
+use std::ops::Add;
+
+#[derive(Copy, Clone)]
+struct Vec2 {
+    x: f64,
+    y: f64
+}
+
+impl Add for Vec2 {
+    type Output = Vec2;
+
+    fn add(self, rhs: Vec2) -> Vec2 {
+        Vec2 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+/*
+ * prifri, 2022.11.23:
+ * - where T : Add<Output = T> + Copy
+ * 1. Add trait를 구현했어야된다.
+ * 2. Add trait의 output은 T이여야 된다.
+ * 3. Copy trait를 구현했어야 된다.
+ */
+fn add_3times<T>(a: T) -> T where T : Add<Output = T> + Copy
+{
+    a + a + a
+}
+
+/*
+ * prifri, 2022.11.23:
+ * - 위와 똑같지만 다른 방법의 정의
+ */
+fn add_3times2<T : Add<Output = T> + Copy>(a: T) -> T
+{
+    a + a + a
+}
+fn main() {
+    let v1 = Vec2{x: 10.0, y: 5.0};
+    let v2 = Vec2{x: 3.1, y: 8.7};
+    let v3 = v1;
+    let v4 = v2;
+    let v5 = v3 + v4;
+    let v6 = add_3times(v5);
+    let v7 = add_3times2(v6);
+    println!("{} {} {} {} {} {}", v5.x, v5.y, v6.x, v6.y, v7.x, v7.y);
+}
