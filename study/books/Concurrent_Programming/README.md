@@ -12,3 +12,9 @@
 # 기타
 
 C example은 C로 진행했다.
+
+# 용어 정리
+
+LL/SC : Load-Link/Store-Conditional 
+Mutex : MUTual EXecution
+
