@@ -17,4 +17,4 @@ C example은 C로 진행했다.
 
 LL/SC : Load-Link/Store-Conditional 
 Mutex : MUTual EXecution
-
+생산자-소비자모델 : producer-consumer model

@@ -19,7 +19,7 @@ static void tas_release(volatile bool *p)
 static uint64_t g_success[CNT];
 static uint64_t g_fail[CNT];
 static bool g_lock = false;
-void *f(void *a)
+static void *f(void *a)
 {
 	int id = (intptr_t)a;
 	uint32_t loop = 1000;

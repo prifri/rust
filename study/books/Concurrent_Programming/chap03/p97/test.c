@@ -41,7 +41,7 @@ static void spinlock_release(bool *lock)
 	tas_release(lock);
 }
 
-void *f(void *a)
+static void *f(void *a)
 {
 	int id = (intptr_t)a;
 	uint32_t loop = 1000;
