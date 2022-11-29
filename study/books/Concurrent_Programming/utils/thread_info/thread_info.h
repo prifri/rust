@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef enum {
+	THREAD_STATUS_NONE,
 	THREAD_STATUS_START,
 	THREAD_STATUS_WAIT,
 	THREAD_STATUS_SPIN_ACQUIRE,
@@ -37,5 +38,7 @@ const char *thread_info_get_status_color(uint32_t id);
 void thread_info_show_table(void);
 void thread_info_set_status(const uint32_t id, THREAD_STATUS status);
 void thread_info_set_type(const uint32_t id, THREAD_TYPE type);
+void thread_info_init(uint32_t cnt);
+void thread_info_deinit(void);
 
 #endif

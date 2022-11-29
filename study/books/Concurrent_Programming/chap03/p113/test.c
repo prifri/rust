@@ -175,6 +175,8 @@ typedef enum {
 
 int main(void)
 {
+	thread_info_init(T_CNT);
+
 	pthread_t tn[T_CNT];
 
 	for (int i = THREAD_IDX_READ_START; i < THREAD_IDX_WRITE_START; i++)
@@ -199,6 +201,8 @@ int main(void)
 	{
 		pthread_join(tn[i], NULL);
 	}
+
+	thread_info_deinit();
 	return 0;
 }
 

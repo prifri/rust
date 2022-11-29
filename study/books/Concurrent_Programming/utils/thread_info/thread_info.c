@@ -3,18 +3,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <pthread.h>
+#include <string.h>
 #include <unistd.h>
 #include "thread_info.h"
-
-#define T_READ_CNT	5
-#if 1
-#define T_WRITE_CNT	1
-#else
-#define T_WRITE_CNT	10
-#endif
-
-#define T_CNT (T_READ_CNT + T_WRITE_CNT)
 
 //***************************************************************************
 // stat
@@ -42,17 +33,26 @@
 #define ANSI_BWHITE              "\033[0;97m"
 
 typedef struct {
+	bool is_use;
 	THREAD_TYPE type;
 	THREAD_STATUS curr;
 	uint64_t stat[THREAD_STATUS_MAX];
 } thread_info;
 
-static thread_info g_tinfo[T_CNT];
+typedef struct {
+	bool stat_use[THREAD_STATUS_MAX];
+	uint32_t cnt;
+} thread_setting;
+
+static thread_info *g_tinfo;
+static thread_setting g_tsetting;
 
 static const char *get_thread_status_str(THREAD_STATUS status)
 {
 	switch (status)
 	{
+		case THREAD_STATUS_NONE:
+			return "-";
 		case THREAD_STATUS_START:
 			return "GO";
 		case THREAD_STATUS_WAIT:
@@ -91,6 +91,7 @@ static const char *get_thread_status_color(THREAD_STATUS status)
 {
 	switch (status)
 	{
+		case THREAD_STATUS_NONE:
 		case THREAD_STATUS_START:
 		case THREAD_STATUS_WAIT:
 			return ANSI_DEFAULT;
@@ -149,10 +150,16 @@ static const char *get_thread_type_color(THREAD_TYPE type)
 	}
 }
 
+#define is_use_status(status)	g_tsetting.stat_use[status]
 static void __show_table_name(void)
 {
 	for (THREAD_STATUS i = 0; i < THREAD_STATUS_MAX; i++)
 	{
+		if (!is_use_status(i))
+		{
+			continue;
+		}
+
 		printf(" %4s |", get_thread_status_str(i));
 	}
 	printf("\n");
@@ -163,6 +170,11 @@ static void __show_table_stat(uint32_t id)
 	const thread_info *tinfo = &g_tinfo[id];
 	for (THREAD_STATUS i = 0; i < THREAD_STATUS_MAX; i++)
 	{
+		if (!is_use_status(i))
+		{
+			continue;
+		}
+
 		uint64_t cnt = tinfo->stat[i];
 		if (cnt < 1000)
 		{
@@ -234,7 +246,7 @@ void thread_info_show_table(void)
 	printf("| %3s | %5s | %5s |", "idx", "type", "curr");
 	__show_table_name();
 
-	for (int i = 0; i < T_CNT; i++)
+	for (int i = 0; i < g_tsetting.cnt; i++)
 	{
 		printf("| %3d | %s%5s%s | %s%5s%s |",
 			   i,
@@ -255,6 +267,7 @@ void thread_info_set_status(const uint32_t id, THREAD_STATUS status)
 	thread_info *tinfo = &g_tinfo[id];
 	tinfo->stat[status]++;
 	tinfo->curr = status;
+	g_tsetting.stat_use[status] = true;
 
 	if (status < THREAD_STATUS__KIND_SPIN)
 	{
@@ -268,3 +281,23 @@ void thread_info_set_type(const uint32_t id, THREAD_TYPE type)
 	tinfo->type = type;
 }
 
+void thread_info_init(uint32_t cnt)
+{
+	g_tinfo = calloc(1, sizeof(*g_tinfo) * cnt);
+	if (g_tinfo == NULL)
+	{
+		assert(0);
+	}
+
+	g_tsetting.cnt = cnt;
+}
+
+void thread_info_deinit(void)
+{
+	if (g_tinfo)
+	{
+		memset(&g_tsetting, 0, sizeof(g_tsetting));
+		free(g_tinfo);
+		g_tinfo = NULL;
+	}
+}
