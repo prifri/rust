@@ -38,11 +38,8 @@ static uint32_t semaphore_aqcuire(volatile int *cnt, uint32_t id)
 	 * - ret을 안쓰는 이유
 	 *   c에서 return안쓰고 ret을써서 하는법을 모르겠다. compile warning..
 	 *
-	 * - 사실 ldxr / stlxr을 써도된다고 생각한다.
 	 * -------------
 	 *  - https://developer.arm.com/documentation/102336/0100/Load-Acquire-and-Store-Release-instructions
-	 *  - ldxr / stxr vs ldar / stlr vs ldaxr / stlxr
-	 *
 	 *  - ldar / stlr
 	 *  ldar / stlr은 atomic과는 관계없지만 ldxr / stxr과 스펠링이 비슷해
 	 *  헷갈릴 수 있으므로 같이 정리한다.
