@@ -3,7 +3,7 @@ mod banker;
 use banker::Banker;
 use std::thread;
 
-const NUM_LOOP: usize = 100000;
+const NUM_LOOP: usize = 1000;
 const RESOURCE_CNT: usize = 3;
 const THREAD_CNT: usize = 4;
 const DEFAULT_AVAILABLE: usize = 1;

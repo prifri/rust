@@ -39,6 +39,8 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
         loop {
             let mut found = false;
             let mut num_true = 0;
+            let mut false_is_exist = false;
+
             for (i, alc) in self.allocation.iter().enumerate() {
                 if finish[i] {
                     num_true += 1;
@@ -82,8 +84,19 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
                     for (w, a) in work.iter_mut().zip(alc) {
                         *w += *a
                     }
-                    break;
+/*
+ * prifri, 2022.12.05:
+ * - 모든 resource에 대해서 못찾으면 어짜피 그전에 한번이라도 found를
+ * 못햇으면 다음것들을 검사할 필요없으니 break.
+ * 가 맞을수도 있지만 sleep을 안쓸거면 어짜피 spin이라 필요없긴하다.
+ */
+                    if false_is_exist {
+                        break;
+                    }
+                    continue;
                 }
+
+                false_is_exist = true;
             }
 
             if num_true == NTH {
@@ -91,11 +104,16 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
             }
 
             if !found {
-                break;
+                return false;
             }
-        }
 
-        false
+/*
+ * IAMROOT, 2022.12.05:
+ * - sleep을 넣으면 cpu가 spin을 심하게 안돌긴하지만 실행시간이 수백배
+ * 느려지는거같다.
+ */
+            //std::thread::sleep(std::time::Duration::from_nanos(100));
+        }
     }
 
 /*

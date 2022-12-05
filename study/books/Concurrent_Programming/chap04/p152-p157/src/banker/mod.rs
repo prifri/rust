@@ -1,6 +1,6 @@
 mod bankers;
 
-use bankers::Resource;
+use self::bankers::Resource;
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone)]
