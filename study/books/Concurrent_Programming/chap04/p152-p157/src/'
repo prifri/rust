@@ -1,0 +1,61 @@
+mod banker;
+
+use banker::Banker;
+use std::thread;
+
+const NUM_LOOP: usize = 10000;
+const RESOURCE_CNT: usize = 3;
+const THREAD_CNT: usize = 4;
+
+fn main() {
+    let banker = Banker::<RESOURCE_CNT, THREAD_CNT>
+        ::new([1, 1, 1], [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]);
+    let banker1 = banker.clone();
+    let mut philosophers: [Option(thread::JoinHandle<()>); THREAD_CNT] = [None; THREAD_CNT];
+
+    for (_, p) in philosophers.iter_mut().enumerate() {
+        let banker0 = banker.clone();
+        p = thread::spawn(move || {
+            for _ in 0..NUM_LOOP {
+                while !banker0.take(0, 0) {}
+                while !banker0.take(0, 1) {}
+
+                //println!("0: eating");
+
+                banker0.release(0, 0);
+                banker0.release(0, 1);
+            }
+        });
+    }
+
+    let philosopher1 = thread::spawn(move || {
+        for _ in 0..NUM_LOOP {
+            while !banker.take(1, 0) {}
+            while !banker.take(1, 1) {}
+
+            //println!("1: eating");
+
+            banker.release(1, 0);
+            banker.release(1, 1);
+        }
+    });
+
+    let philosopher2 = thread::spawn(move || {
+        for _ in 0..NUM_LOOP {
+            while !banker1.take(2, 0) {}
+            while !banker1.take(2, 1) {}
+
+            //println!("1: eating");
+
+            banker1.release(2, 0);
+            banker1.release(2, 1);
+        }
+    });
+
+
+    for (_, p) in philosophers.iter_mut().enumerate() {
+        p.join().unwrap();
+    }
+    philosopher1.join().unwrap();
+    philosopher2.join().unwrap();
+}
