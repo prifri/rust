@@ -19,9 +19,10 @@ pub struct Resource<const NRES: usize, const NTH: usize> {
 }
 
 impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
-    pub fn new(idx: usize, max: [[usize; NRES]; NTH]) -> Self {
+    pub fn new(available: [usize; NRES], 
+               max: [[usize; NRES]; NTH]) -> Self {
         Resource {
-            available: max[idx],
+            available,
             allocation: [[0; NRES]; NTH],
             max,
         }
@@ -33,19 +34,23 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
  *
  */
     fn is_safe(&self) -> bool {
-        let mut finish = [false; NTH];
         let mut work = self.available.clone();
+/*
+ * prifri, 2022.12.06:
+ * - 원본과 다르게 loop를 삭제한다. 직전에 found를 한번이라도 실패했으면
+ *   종료하면된다.
+ *   ex) thread가 3개있다고 한다.
+ *   첫 loop때 0, 1번이 finish true가 되고 2번이 finish false가 되며
+ *   found는 true이므로 2번째 loop를 돈다
+ *   하지만 2번째 loop에서는 무조건 found가 false가 될것이므로 무의미한
+ *   탐색을 한 loop돌며 실패로 끝날것이다.
+ *   즉 found가 실패 한번 종료한시점에서 끝내면된다.
+ *
+ *   이렇게하면 lock을 잡는 시간이 늦고, finish배열을 스택에 할당 및 초기화
+ *   할 필요도없으며 num_true도 필요없다.
+ */
 
-        loop {
-            let mut found = false;
-            let mut num_true = 0;
-            let mut false_is_exist = false;
-
-            for (i, alc) in self.allocation.iter().enumerate() {
-                if finish[i] {
-                    num_true += 1;
-                    continue;
-                }
+        for (alc, m) in self.allocation.iter().zip(self.max) {
 
 /*
  * prifri, 2022.12.05:
@@ -59,7 +64,7 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
  *
  * - 해당 thread가 가용할수있는 각 resource의 양을 가져온다.
  */
-                let need = self.max[i].iter().zip(alc).map(|(m, a)| m - a);
+            let need = m.iter().zip(alc).map(|(m, a)| m - a);
 /*
  * prifri, 2022.12.05:
  * - is_avail = work.iter().zip(need).all(|(w, n)| *w >= n);
@@ -76,44 +81,17 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
  * - 해당 thread의 resource들이 전부 확보할수있는지 검사한다.
  * - 가능하다면 found가 된거고, allocation만큼 resource들으 가중하고 종료한다.
  */
-                let is_avail = work.iter().zip(need).all(|(w, n)| *w >= n);
-                if is_avail {
-                    found = true;
-                    finish[i] = true;
-                    num_true += 1;
-                    for (w, a) in work.iter_mut().zip(alc) {
-                        *w += *a
-                    }
-/*
- * prifri, 2022.12.05:
- * - 모든 resource에 대해서 못찾으면 어짜피 그전에 한번이라도 found를
- * 못햇으면 다음것들을 검사할 필요없으니 break.
- * 가 맞을수도 있지만 sleep을 안쓸거면 어짜피 spin이라 필요없긴하다.
- */
-                    if false_is_exist {
-                        break;
-                    }
-                    continue;
-                }
-
-                false_is_exist = true;
-            }
-
-            if num_true == NTH {
-                return true;
-            }
-
-            if !found {
+            let is_avail = work.iter().zip(need).all(|(w, n)| *w >= n);
+            if !is_avail {
                 return false;
             }
 
-/*
- * IAMROOT, 2022.12.05:
- * - sleep을 넣으면 cpu가 spin을 심하게 안돌긴하지만 실행시간이 수백배
- * 느려지는거같다.
- */
-            //std::thread::sleep(std::time::Duration::from_nanos(100));
+            for (w, a) in work.iter_mut().zip(alc) {
+                *w += *a
+            }
         }
+
+        return true;
     }
 
 /*
@@ -129,12 +107,12 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
         self.available[resource] -= 1;
 
         if self.is_safe() {
-            true
-        } else {
-            self.allocation[id][resource] -= 1;
-            self.available[resource] += 1;
-            false
-        }
+            return true;
+        } 
+
+        self.allocation[id][resource] -= 1;
+        self.available[resource] += 1;
+        false
     }
 
     pub fn release(&mut self, id: usize, resource: usize) {
@@ -146,9 +124,22 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
         self.available[resource] += 1;
     }
 
-    pub fn show(&mut self, id: usize, is_take: bool, success: bool) {
-        print!("{}{}{} | ", id, if is_take { "take" } else { "rele"},
-               if success { "O" } else { "X" });
+    #[allow(dead_code)]
+    pub fn show(&mut self, id: usize, is_take: bool, success: bool,
+                resource: usize) {
+        print!("{}{}{}{} | ",
+               id,
+               if is_take {
+                   "take"
+               } else {
+                   "rele"
+               },
+               if success {
+                   "O"
+               } else {
+                   "X"
+               },
+               resource);
         for (_, a) in self.available.iter().enumerate() {
             print!("{} ", a);
         }
@@ -159,11 +150,13 @@ impl<const NRES: usize, const NTH: usize> Resource<NRES, NTH> {
                 print!("{} ", self.allocation[tidx][ridx]);
             }
 
+            /*
             print!("- ");
 
             for ridx in 0..NRES {
                 print!("{} ", self.max[tidx][ridx]);
             }
+            */
 
             print!("| ");
         }

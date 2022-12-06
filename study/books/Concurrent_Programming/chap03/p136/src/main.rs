@@ -249,7 +249,7 @@ fn monitor() {
                 if let Some(t) = LOCK.tickets[i] {
                     print!("{} ||", t);
                 } else {
-                    print!("X ||", );
+                    print!("X ||");
                 };
             }
             println!(" {}", COUNT);
