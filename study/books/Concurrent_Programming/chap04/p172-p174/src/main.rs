@@ -1,4 +1,16 @@
 /*
+ * prifri, 2022.12.07:
+ * - asm 위치 찾기
+ *
+        unsafe {
+            std::arch::asm!("nop");
+            std::arch::asm!("nop");
+        }
+
+ * 이걸 tag처럼 해서 asm위치를 찾자.
+ */
+
+/*
  * prifri, 2022.12.06:
  * - rust의 차용 룰을 파기하고 뮤터블한 참조를 여럿 가지도록 하는 기술을
  * 가능하게 하는 위험한 타입이라고 한다.
@@ -37,6 +49,13 @@ struct SpinLockGuard<'a, T> {
 }
 
 impl<T> SpinLock<T> {
+/*
+ * prifri, 2022.12.07:
+ * - 실제 반환은 SpinLockGuard로 된다. 사용자는 let x = lock.new()..
+ *   으로 사용하므로 정확히 어떤 type이 오는진 잘 모르것이다.
+ *   이 type으로 쓰다가 scope를 빠져나가면 SpinLockGuard가 Drop되는
+ *   형식이 된다. 이 방법으로 자동으로 drop이 되도록 한다.
+ */
     fn new(v: T) -> Self {
         SpinLock {
             lock: AtomicBool::new(false),
@@ -51,12 +70,21 @@ impl<T> SpinLock<T> {
  */
     fn lock(&self) -> SpinLockGuard<T> {
         loop {
+/*
+ * prifri, 2022.12.07:
+ * - 변수이름이 lock이라 좀헷갈리는데 그냥 atomic read로 계속 읽어보는것.
+ *   relaxed라서 사실 atomic도 아니긴 하다. 그냥 읽는다.
+ * - loop안에 있는 구조고 즉시 뒤에 compare_exchange_weak와 관계가
+ *   있는 구조라 Relaxed로 적당히 해도 상관없다.
+ */
             while self.lock.load(Ordering::Relaxed) {}
 /*
  * prifri, 2022.12.06:
  * - ..weak
  *   test에 성공하더라도 실패하면 재시도하지 않는다. weak가 없는 버전은
  *   재시도를 한다.
+ * - weak로 시도 -> 실패했다면 loop로 다시 read. 그후 다시 시도
+ *   순으로 하게되 있다.
  */
             if let Ok(_) =
                 self.lock
