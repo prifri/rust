@@ -18,3 +18,4 @@ C example은 C로 진행했다.
 LL/SC : Load-Link/Store-Conditional  
 Mutex : MUTual EXecution 
 생산자-소비자모델 : producer-consumer model 
+i/o multiplexing(i/o 다중화) : 여러 io에 대해 동시에 처리를 수행하는 방법(epoll, select)  
