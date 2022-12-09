@@ -108,7 +108,7 @@ impl Future for Hello {
     }
 }
 
-fn main() {
+fn test1() {
     let executor = Executor::new();
 /*
  * prifri, 2022.12.08:
@@ -134,4 +134,20 @@ fn main() {
         h.await;
     });
     executor.run();
+}
+
+async fn hello() {
+    let h = Hello::new();
+    h.await;
+}
+
+fn test2() {
+    let executor = Executor::new();
+    executor.get_spawner().spawn( hello() );
+    executor.run();
+}
+
+fn main() {
+    test1();
+    test2();
 }
