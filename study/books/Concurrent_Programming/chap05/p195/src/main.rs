@@ -125,9 +125,6 @@ fn test1() {
  *      Poll::Pending => return Poll:Pending,
  *      Poll::result(x) => x,
  *   }
- *
- * - 몬말인지 모르겠다 그냥 site 참고가 훨씬 나을듯
- *   https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html
  */
     executor.get_spawner().spawn(async {
         let h = Hello::new();
