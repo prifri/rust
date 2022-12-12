@@ -30,6 +30,10 @@ async fn main() -> Result<(), tokio::task::JoinError> {
     }
 
     println!("{}", line!());
+/*
+ * prifri, 2022.12.12:
+ * - 여기서 비동기로 동작한다.
+ */
     for i in v {
         i.await?;
     }
